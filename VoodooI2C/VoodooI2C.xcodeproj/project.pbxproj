@@ -510,8 +510,6 @@
 				AC2603AD1F2F294000CF238F /* Headers */,
 				AC2603AE1F2F294000CF238F /* Resources */,
 				AC0955921F4EE9B00052E343 /* Add GPIO and Services Plugin */,
-				ACA4A00D21E25F0E00A91B61 /* Linting */,
-				ACA4A00F21E25F3500A91B61 /* Generate Documentation */,
 			);
 			buildRules = (
 			);

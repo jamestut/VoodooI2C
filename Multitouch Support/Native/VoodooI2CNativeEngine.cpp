@@ -64,15 +64,6 @@ MultitouchReturn VoodooI2CNativeEngine::handleInterruptReport(VoodooI2CMultitouc
 
         inputTransducer->currentCoordinates.pressure = transducer->tip_pressure.value();
         inputTransducer->previousCoordinates.pressure = transducer->tip_pressure.last.value;
-
-        // Force Touch emulation
-        // The button state is saved in the first transducer
-        if (((VoodooI2CDigitiserTransducer*) event.transducers->getObject(0))->physical_button.value() && isForceClickEnabled()) {
-            inputTransducer->supportsPressure = true;
-            inputTransducer->isPhysicalButtonDown = 0x0;
-            inputTransducer->currentCoordinates.pressure = 0xff;
-            inputTransducer->currentCoordinates.width = 10;
-        }
     }
     
     // set the thumb to improve 4F pinch and spread gesture and cross-screen dragging
@@ -121,39 +112,7 @@ bool VoodooI2CNativeEngine::start(IOService* provider) {
 }
 
 bool VoodooI2CNativeEngine::isForceClickEnabled() {
-    AbsoluteTime now_abs;
-    uint64_t diff_ns;
-    clock_get_uptime(&now_abs);
-    absolutetime_to_nanoseconds(now_abs - lastForceClickPropertyUpdateTime, &diff_ns);
-
-    if (diff_ns < 1e9) {
-        lastForceClickPropertyUpdateTime = now_abs;
-        return lastIsForceClickEnabled;
-    }
-
-    // Blocking reading here takes about 10 microseconds
-    OSDictionary* dict = OSDynamicCast(OSDictionary, this->getProperty("MultitouchPreferences", gIOServicePlane, kIORegistryIterateRecursively));
-    if (!dict) {
-        return lastIsForceClickEnabled;
-    }
-    if (OSCollectionIterator* i = OSCollectionIterator::withCollection(dict)) {
-        while (OSSymbol* key = OSDynamicCast(OSSymbol, i->getNextObject())) {
-            // System -> Preferences -> Trackpad -> Force Click and haptic feedback
-            // ForceSuppressed
-            if (key->isEqualTo("ForceSuppressed")) {
-                OSBoolean* value = OSDynamicCast(OSBoolean, dict->getObject(key));
-
-                if (value != NULL) {
-                    lastIsForceClickEnabled = !value->getValue();
-                }
-            }
-        }
-
-        i->release();
-    }
-
-    lastForceClickPropertyUpdateTime = now_abs;
-    return lastIsForceClickEnabled;
+    return false;
 }
 
 void VoodooI2CNativeEngine::onPropertyChange() {
